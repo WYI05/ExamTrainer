@@ -15,6 +15,7 @@ export function genTeu(opts: GenOpts = {}): Question {
     fastRule: 'TEU = 20-ft count + 2 × 40-ft count.',
     memoryTrick: '40 is two 20s.',
   };
+  const visual: Question['visual'] = { kind: 'teu', twenty, forty };
   const hints: [string, string] = ['How many TEUs is one 40-foot container?', 'TEU = twenty + 2 × forty.'];
   const given = [`${twenty} twenty-foot containers`, `${forty} forty-foot containers`];
   const prompt = pick(
@@ -38,6 +39,7 @@ export function genTeu(opts: GenOpts = {}): Question {
       format: fmtInt,
       hints,
       explanation,
+      visual,
       mistake: 'teu-40',
     });
   }
@@ -57,6 +59,7 @@ export function genTeu(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'teu-40',
     rnd,
   });
@@ -83,6 +86,7 @@ export function genTeuReverse(opts: GenOpts = {}): Question {
       { value: total / 2, mistake: 'arithmetic' },
       { value: forty + 10, mistake: 'arithmetic' },
     ],
+    visual: { kind: 'teu', twenty, forty },
     hints: ['Subtract the 20-ft TEUs first.', 'Remaining TEUs ÷ 2 = number of 40-ft containers.'],
     explanation: {
       steps: [`TEUs from 40-ft = ${total} − ${twenty} = ${total - twenty}`, `40-ft containers = ${total - twenty} / 2 = ${forty}`],

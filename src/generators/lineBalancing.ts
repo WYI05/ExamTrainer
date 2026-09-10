@@ -51,6 +51,7 @@ export function genCycleTime(opts: GenOpts = {}): Question {
     fastRule: 'CYCLE TIME → NEVER ROUND UP.',
     memoryTrick: 'Extra seconds per unit = fewer units. Round down.',
   };
+  const visual: Question['visual'] = { kind: 'rounding', value: raw, mode: 'down' };
   const hints: [string, string] = ['Convert hours to seconds first.', 'c = OT / D, then round DOWN.'];
   if (opts.numeric) {
     return numeric({
@@ -65,6 +66,7 @@ export function genCycleTime(opts: GenOpts = {}): Question {
       format: fmtInt,
       hints,
       explanation,
+      visual,
       mistake: 'ct-round-up',
     });
   }
@@ -84,6 +86,7 @@ export function genCycleTime(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'ct-round-up',
     rnd,
   });
@@ -105,6 +108,7 @@ export function genTheoreticalMin(opts: GenOpts = {}): Question {
     steps: [`TM = t / c = ${t} / ${c} = ${fmt2(raw)}`, `You cannot have a fraction of a workstation → round UP to ${answer}.`],
     fastRule: 'WORKSTATIONS → ALWAYS ROUND UP.',
   };
+  const visual: Question['visual'] = { kind: 'rounding', value: raw, mode: 'up' };
   const hints: [string, string] = ['Divide the total work by the time each station gets.', 'TM = t / c, then round UP.'];
   const given = [`Total task time t = ${t} sec`, `Cycle time c = ${c} sec`];
   if (opts.numeric) {
@@ -120,6 +124,7 @@ export function genTheoreticalMin(opts: GenOpts = {}): Question {
       format: fmtInt,
       hints,
       explanation,
+      visual,
       mistake: 'ws-round-down',
     });
   }
@@ -139,6 +144,7 @@ export function genTheoreticalMin(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'ws-round-down',
     rnd,
   });
@@ -161,6 +167,7 @@ export function genEfficiency(opts: GenOpts = {}): Question {
     steps: [`Efficiency = t / (n × c)`, `= ${t} / (${n} × ${c}) = ${t} / ${n * c} = ${answer.toFixed(3)}`, `As requested: ${format(answer)}`],
     fastRule: 'Efficiency = work ÷ capacity = t / (nc).',
   };
+  const visual: Question['visual'] = { kind: 'station-bars', t, n, c };
   const hints: [string, string] = ['Capacity is stations × cycle time.', 'Efficiency = t / (n × c).'];
   const given = [`Total task time t = ${t} sec`, `Number of workstations n = ${n}`, `Cycle time c = ${c} sec`];
   if (opts.numeric) {
@@ -175,6 +182,7 @@ export function genEfficiency(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
       mistake: 'formula-choice',
     });
   }
@@ -194,6 +202,7 @@ export function genEfficiency(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -214,6 +223,7 @@ export function genIdle(opts: GenOpts = {}): Question {
     steps: [`Capacity = n × c = ${n} × ${c} = ${n * c} sec`, `Idle = ${n * c} − ${t} = ${answer} sec`],
     fastRule: 'Idle = nc − t (capacity minus work).',
   };
+  const visual: Question['visual'] = { kind: 'station-bars', t, n, c };
   const hints: [string, string] = ['How much time does the whole line have, and how much is actual work?', 'Idle = (n × c) − t.'];
   const given = [`Total task time t = ${t} sec`, `Number of workstations n = ${n}`, `Cycle time c = ${c} sec`];
   if (opts.numeric) {
@@ -229,6 +239,7 @@ export function genIdle(opts: GenOpts = {}): Question {
       format: fmtInt,
       hints,
       explanation,
+      visual,
       mistake: 'formula-choice',
     });
   }
@@ -248,6 +259,7 @@ export function genIdle(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -274,6 +286,7 @@ export function genEffectiveCT(opts: GenOpts = {}): Question {
     fastRule: 'Effective CT = longest workstation. No formula needed.',
     memoryTrick: 'The bottleneck sets the pace.',
   };
+  const visual: Question['visual'] = { kind: 'station-bars', stationTimes: times, highlightMax: true };
   const hints: [string, string] = ['Which station is the bottleneck?', 'Effective cycle time = the LONGEST workstation time.'];
   const given = times.map((v, i) => `WS${i + 1} = ${v} sec`);
   if (opts.numeric) {
@@ -289,6 +302,7 @@ export function genEffectiveCT(opts: GenOpts = {}): Question {
       format: fmtInt,
       hints,
       explanation,
+      visual,
       mistake: 'effective-ct-confusion',
     });
   }
@@ -308,6 +322,7 @@ export function genEffectiveCT(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'effective-ct-confusion',
     rnd,
   });
@@ -331,6 +346,7 @@ export function effectiveCTFromList(times: number[], difficulty: Difficulty = 'm
       { value: sorted.find((v) => v !== answer) ?? answer - 3, mistake: 'arithmetic' },
       { value: answer - 1, mistake: 'arithmetic' },
     ],
+    visual: { kind: 'station-bars', stationTimes: times, highlightMax: true },
     hints: ['Which station is the bottleneck?', 'Effective CT = the LONGEST workstation.'],
     explanation: { steps: [`Longest workstation = ${answer} sec.`], fastRule: 'Effective CT = longest workstation.' },
     defaultMistake: 'effective-ct-confusion',
@@ -359,7 +375,8 @@ export function genRoundingRule(opts: GenOpts = {}): Question {
         { label: `${raw.toFixed(2)} seconds (never round)`, mistake: 'ct-round-up' },
         { label: `${down + 2} seconds`, mistake: 'ct-round-up' },
       ],
-      hints: ['Would MORE seconds per unit help you hit the output target?', 'Cycle time: never round up.'],
+      visual: { kind: 'rounding', value: raw, mode: 'down' },
+    hints: ['Would MORE seconds per unit help you hit the output target?', 'Cycle time: never round up.'],
       explanation: {
         steps: ['Rounding up gives each unit more time, so the line would fall short of the required output.'],
         fastRule: 'CYCLE TIME → NEVER ROUND UP.',
@@ -381,6 +398,7 @@ export function genRoundingRule(opts: GenOpts = {}): Question {
       { label: `${raw.toFixed(2)}`, mistake: 'ws-round-down' },
       { label: `${up + 1}`, mistake: 'arithmetic' },
     ],
+    visual: { kind: 'rounding', value: raw, mode: 'up' },
     hints: ['Can you build a fraction of a workstation?', 'Workstations: always round up.'],
     explanation: {
       steps: ['A fraction of a workstation cannot exist, and rounding down would leave work unassigned.'],
@@ -418,6 +436,7 @@ export function genCtThenTm(opts: GenOpts = {}): Question {
       { value: answer + 1, mistake: 'arithmetic' },
       { value: Math.max(1, answer - 2), mistake: 'ws-round-down' },
     ],
+    visual: { kind: 'rounding', value: t / c, mode: 'up', label: `c = ${c} (rounded down), then ${t} / ${c} = ${(t / c).toFixed(2)} stations → round up` },
     hints: ['Find cycle time first (never round up), then TM (always round up).', 'c = OT/D → round down. TM = t/c → round up.'],
     explanation: {
       steps: [

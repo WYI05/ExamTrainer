@@ -8,16 +8,22 @@ interface Props {
   S?: number;
   H?: number;
   compact?: boolean;
+  /** Starting Q for the slider (defaults to 2×EOQ so the imbalance is visible). */
+  Q?: number;
+  /** Permitted quantities to mark (ordering restrictions). */
+  marks?: number[];
+  /** Hide the D/S/H inputs and the slider: a static figure. */
+  locked?: boolean;
 }
 
 /** Interactive EOQ curve: ordering cost falls, holding cost rises, EOQ is the balance. */
-export function EOQVisual({ D: D0 = 7800, S: S0 = 475, H: H0 = 61.25, compact }: Props) {
+export function EOQVisual({ D: D0 = 7800, S: S0 = 475, H: H0 = 61.25, compact, Q: Q0, marks, locked }: Props) {
   const [D, setD] = useState(D0);
   const [S, setS] = useState(S0);
   const [H, setH] = useState(H0);
   const e = eoq(D, S, H);
   const maxQ = Math.max(100, Math.ceil((e * 3) / 50) * 50);
-  const [Q, setQ] = useState(() => Math.round(e * 2));
+  const [Q, setQ] = useState(() => Q0 ?? Math.round(e * 2));
 
   const W = 520;
   const Hh = 220;
@@ -57,6 +63,14 @@ export function EOQVisual({ D: D0 = 7800, S: S0 = 475, H: H0 = 61.25, compact }:
         <text x={xs(e)} y={Hh - pad.b + 14} textAnchor="middle" className="fill-good text-[11px] font-bold">
           EOQ {Math.round(e)}
         </text>
+        {marks?.map((m) => (
+          <g key={m}>
+            <line x1={xs(m)} y1={pad.t + 40} x2={xs(m)} y2={Hh - pad.b} className="stroke-violet" strokeDasharray="2 3" />
+            <text x={xs(m)} y={pad.t + 36} textAnchor="middle" className="fill-violet text-[10px] font-bold">
+              {m}
+            </text>
+          </g>
+        ))}
         <line x1={xs(Q)} y1={pad.t} x2={xs(Q)} y2={Hh - pad.b} className="stroke-accent" strokeWidth={2} />
         <circle cx={xs(Q)} cy={ys(aoc)} r={4} className="fill-info" />
         <circle cx={xs(Q)} cy={ys(ahc)} r={4} className="fill-warn" />
@@ -67,7 +81,7 @@ export function EOQVisual({ D: D0 = 7800, S: S0 = 475, H: H0 = 61.25, compact }:
         <text x={W - pad.r} y={Hh - 6} textAnchor="end" className="fill-muted text-[10px]">Q →</text>
       </svg>
       <div className="mt-2">
-        <input type="range" min={10} max={maxQ} step={5} value={Q} onChange={(e2) => setQ(Number(e2.target.value))} className="w-full accent-[rgb(var(--c-accent))]" aria-label="Order quantity Q" />
+        {!locked && <input type="range" min={10} max={maxQ} step={5} value={Q} onChange={(e2) => setQ(Number(e2.target.value))} className="w-full accent-[rgb(var(--c-accent))]" aria-label="Order quantity Q" />}
         <div className="mt-2 grid grid-cols-4 gap-2 text-center text-xs">
           <Cell label="Q" value={Q.toString()} />
           <Cell label="AOC" value={money(aoc, 0)} tone="text-info" />
@@ -82,7 +96,7 @@ export function EOQVisual({ D: D0 = 7800, S: S0 = 475, H: H0 = 61.25, compact }:
               : 'AOC > AHC → Q is too SMALL → EOQ is larger. Slide right.'}
         </div>
       </div>
-      {!compact && (
+      {!compact && !locked && (
         <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
           <Num label="D" value={D} onChange={setD} step={100} min={500} max={30000} />
           <Num label="S" value={S} onChange={setS} step={5} min={10} max={1000} />

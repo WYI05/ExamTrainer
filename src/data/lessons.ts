@@ -1,4 +1,4 @@
-import type { Question, WorldId } from '@/types';
+import type { Question, VisualSpec, WorldId } from '@/types';
 import { defaultRng, type Rng } from '@/utils/random';
 import { conceptById } from '@/generators/concept';
 import {
@@ -31,6 +31,7 @@ export type LessonStep =
   | { kind: 'warning'; title: string; lines: string[] }
   | { kind: 'flash'; front: string; back: string }
   | { kind: 'visual'; visual: 'eoq-slider' | 'balance' | 'precedence-intro' | 'pallet' | 'teu' | 'sequence' }
+  | { kind: 'figure'; title: string; caption: string; spec: VisualSpec }
   | { kind: 'try'; make: (rnd: Rng) => Question };
 
 const c = (id: string) => (rnd: Rng) => conceptById(id, rnd)!;
@@ -91,6 +92,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       example: 'A company owns a fleet of trucks. The lifetime cost of one truck is its TCO.',
     },
     { kind: 'try', make: c('c-tco-1') },
+    { kind: 'figure', title: 'TCO is every column, not just the first', caption: 'A truck costs money the day you buy it and every year after. Total Cost of Ownership adds the whole timeline.', spec: { kind: 'tco' } },
     {
       kind: 'warning',
       title: 'Four acronyms, four meanings',
@@ -111,6 +113,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       example: 'Buy 7,800 phones at $175 → DC = $1,365,000. Then add what ordering and holding cost.',
     },
     { kind: 'formula', formulaId: 'tc' },
+    { kind: 'figure', title: 'The three pieces, to scale', caption: 'Buckshot at Q = 900: purchase cost is huge but fixed. Only ordering and holding cost move when Q changes.', spec: { kind: 'cost-stack', DC: 1365000, AOC: 4116.67, AHC: 27562.5, Q: 900 } },
     { kind: 'try', make: (rnd) => genPurchaseCost({ difficulty: 'easy', rnd }) },
     {
       kind: 'teach',
@@ -126,7 +129,9 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       lines: ['Unit cost C is NOT holding cost H.', 'A holding RATE is not H until you multiply by unit cost.'],
     },
     { kind: 'try', make: (rnd) => genHoldingCost({ difficulty: 'easy', rnd }) },
+    { kind: 'figure', title: 'H is a slice of the unit cost', caption: 'Unit cost $100 at a 30% holding rate. The shaded slice is H = $30 per unit per year.', spec: { kind: 'holding', C: 100, rate: 0.3 } },
     { kind: 'formula', formulaId: 'aoc' },
+    { kind: 'figure', title: 'Inventory over a year: the sawtooth', caption: 'Each spike is an order of Q arriving. Count the spikes for orders per year. The dashed line is average inventory, Q/2.', spec: { kind: 'sawtooth', D: 3000, Q: 500, S: 400, H: 38 } },
     { kind: 'try', make: (rnd) => genAOC({ difficulty: 'easy', rnd }) },
     { kind: 'formula', formulaId: 'ahc' },
     { kind: 'try', make: (rnd) => genAHC({ difficulty: 'easy', rnd }) },
@@ -153,9 +158,11 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
     },
     { kind: 'formula', formulaId: 'orders' },
     { kind: 'formula', formulaId: 'tbo' },
+    { kind: 'figure', title: 'Same picture, two questions', caption: 'D/Q counts the spikes (orders per year). (Q/D)×52 measures the gap between two spikes (weeks between orders).', spec: { kind: 'sawtooth', D: 3000, Q: 150, emphasize: 'gap' } },
     { kind: 'try', make: (rnd) => genOrdersPerYear({ difficulty: 'easy', rnd }) },
     { kind: 'try', make: (rnd) => genTimeBetweenOrders({ difficulty: 'easy', rnd }) },
     { kind: 'formula', formulaId: 'weekly' },
+    { kind: 'figure', title: 'A year is 52 weeks', caption: 'Spread annual demand evenly across the strip: D / 52 is what one cell holds.', spec: { kind: 'weeks', D: 7800 } },
     { kind: 'try', make: (rnd) => genWeeklyDemand({ difficulty: 'easy', rnd }) },
     {
       kind: 'teach',
@@ -165,6 +172,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       fastRule: 'Pipeline = d × L (demand rate × lead time).',
       example: 'd = 150 per week, L = 2 weeks → 300 units in the pipeline.',
     },
+    { kind: 'figure', title: 'Units on the road', caption: 'Every week of lead time holds one week of demand in transit. Pipeline = d × L.', spec: { kind: 'pipeline', d: 150, L: 2 } },
     { kind: 'try', make: (rnd) => genPipeline({ difficulty: 'easy', rnd }) },
     { kind: 'flash', front: 'Safety Stock', back: 'Inventory used to account for variation / uncertainty. Safety stock = cushion.' },
     { kind: 'try', make: c('c-safety-stock-1') },
@@ -187,6 +195,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       fastRule: 'Q* = permitted, near EOQ, meets demand, lowest cost.',
       example: 'EOQ = 348, increments of 100 → compare 300 and 400. Pick the cheaper one.',
     },
+    { kind: 'figure', title: 'When EOQ is not allowed', caption: 'Buckshot: EOQ ≈ 348 sits between the permitted 300 and 400. Compare the total-cost curve at the two marks and pick the lower.', spec: { kind: 'eoq-curve', D: 7800, S: 475, H: 61.25, Q: 300, marks: [300, 400] } },
     { kind: 'try', make: (rnd) => genOrderingRestrictions({ difficulty: 'medium', rnd }) },
     { kind: 'try', make: (rnd) => genFormulaRecognition({ difficulty: 'easy', rnd }) },
   ],
@@ -209,11 +218,13 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       example: '8 hours = 28,800 sec. Output 370 → 28,800 / 370 = 77.84 → use 77.',
     },
     { kind: 'formula', formulaId: 'ct' },
+    { kind: 'figure', title: 'Slice the day into units', caption: '28,800 seconds shared by 370 units gives 77.84 seconds each. The course uses 77.', spec: { kind: 'day-split', OT: 28800, D: 370 } },
     {
       kind: 'warning',
       title: 'CYCLE TIME — NEVER ROUND UP',
       lines: ['77.84 → 77', 'Rounding up gives every unit MORE time, so the line misses its output target.'],
     },
+    { kind: 'figure', title: 'Which way does cycle time round?', caption: 'Down. 77.84 becomes 77. The extra 0.84 seconds per unit would cost you units by the end of the day.', spec: { kind: 'rounding', value: 77.84, mode: 'down' } },
     { kind: 'try', make: (rnd) => genCycleTime({ difficulty: 'easy', rnd }) },
     {
       kind: 'teach',
@@ -224,6 +235,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       example: 't = 224, c = 55 → 4.07 → 5 stations.',
     },
     { kind: 'formula', formulaId: 'tm' },
+    { kind: 'figure', title: 'Which way do workstations round?', caption: 'Up. 4.07 stations means four full stations and a little more work, so you need a fifth.', spec: { kind: 'rounding', value: 4.07, mode: 'up' } },
     {
       kind: 'warning',
       title: 'Two opposite rounding rules',
@@ -240,6 +252,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       example: 't = 224, n = 5, c = 95 → 224 / 475 ≈ 0.47 = 47%.',
     },
     { kind: 'formula', formulaId: 'eff' },
+    { kind: 'figure', title: 'Work versus capacity', caption: 'Five stations at 95 seconds is 475 seconds of capacity. Only 224 seconds is real work: 47% efficient.', spec: { kind: 'station-bars', t: 224, n: 5, c: 95 } },
     { kind: 'try', make: (rnd) => genEfficiency({ difficulty: 'easy', rnd }) },
     {
       kind: 'teach',
@@ -250,6 +263,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       example: 't = 537, n = 10, c = 77 → 770 − 537 = 233 sec.',
     },
     { kind: 'formula', formulaId: 'idle' },
+    { kind: 'figure', title: 'Idle time is the empty part of the bars', caption: 'Ten stations at 77 seconds hold 770 seconds. 537 is work, so 233 seconds sit idle every cycle.', spec: { kind: 'station-bars', t: 537, n: 10, c: 77 } },
     { kind: 'try', make: (rnd) => genIdle({ difficulty: 'easy', rnd }) },
     {
       kind: 'teach',
@@ -259,6 +273,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       fastRule: 'Effective CT = longest workstation.',
       example: 'Stations 45, 75, 45, 70, 55 → effective CT = 75.',
     },
+    { kind: 'figure', title: 'The bottleneck sets the pace', caption: 'The longest bar is the effective cycle time. Everyone else waits for it.', spec: { kind: 'station-bars', stationTimes: [45, 75, 45, 70, 55], highlightMax: true } },
     { kind: 'try', make: (rnd) => genEffectiveCT({ difficulty: 'easy', rnd }) },
     {
       kind: 'teach',
@@ -279,6 +294,8 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       fastRule: 'Time check + arrow check.',
       example: 'CT 85, WS1 = AE. WS2 = BC works (70 sec, no predecessors). WS2 = DF fails because D needs B.',
     },
+    { kind: 'figure', title: 'A valid two-station start', caption: 'WS1 = AE, WS2 = BC at CT 85. Both bars fit under the line and every arrow points forward.', spec: { kind: 'layout-check', graphId: 'g1', layout: [['A', 'E'], ['B', 'C']], ct: 85 } },
+    { kind: 'figure', title: 'A precedence violation looks like this', caption: 'WS2 = DF: D needs B, which nobody has done. The red arrow shows the broken rule even though the time fits.', spec: { kind: 'layout-check', graphId: 'g1', layout: [['A', 'E'], ['D', 'F']], ct: 85 } },
     { kind: 'try', make: (rnd) => fixedNextStationG1(rnd, 'easy') },
     { kind: 'try', make: (rnd) => fixedNextStationG2(rnd, 'easy') },
     { kind: 'try', make: (rnd) => genLayoutVerdict({ difficulty: 'easy', rnd }) },
@@ -314,6 +331,7 @@ export const LESSONS: Record<WorldId, LessonStep[]> = {
       example: '100 twenty-foot + 250 forty-foot = 100 + 500 = 600 TEUs.',
     },
     { kind: 'visual', visual: 'teu' },
+    { kind: 'figure', title: 'Count containers the exam way', caption: '100 twenty-foot and 250 forty-foot containers. The forty-footers count double.', spec: { kind: 'teu', twenty: 100, forty: 250 } },
     { kind: 'try', make: c('c-teu-40') },
     { kind: 'try', make: (rnd) => genTeu({ difficulty: 'easy', rnd }) },
     { kind: 'try', make: (rnd) => genTeu({ difficulty: 'medium', rnd }) },

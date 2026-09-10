@@ -109,6 +109,7 @@ export function genEoq(opts: GenOpts = {}): Question {
     `= √(${fmt2((2 * s.D * s.S) / s.H)}) ≈ ${fmt2(answer)}`,
   ];
   const explanation = { steps, fastRule: 'EOQ = √(2DS / H). Get H right first.' };
+  const visual: Question['visual'] = { kind: 'eoq-curve', D: s.D, S: s.S, H: s.H };
   const hints: [string, string] = [
     s.rate !== undefined ? 'Is the holding cost given as a dollar amount or a percentage?' : 'Which three letters does EOQ need?',
     'EOQ = √(2DS / H)' + (s.rate !== undefined ? '. H = rate × C.' : ''),
@@ -126,6 +127,7 @@ export function genEoq(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
       mistake: s.rate !== undefined ? 'rate-not-h' : 'arithmetic',
     });
   }
@@ -146,6 +148,7 @@ export function genEoq(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'arithmetic',
     rnd,
   });
@@ -164,6 +167,7 @@ export function genHoldingCost(opts: GenOpts = {}): Question {
     steps: [`H = holding rate × unit cost`, `H = ${rate} × ${C} = $${fmt2(H)} per unit per year`],
     fastRule: 'A holding RATE is not H until you multiply by unit cost.',
   };
+  const visual: Question['visual'] = { kind: 'holding', C, rate };
   const hints: [string, string] = ['The percentage is "of" something.', 'H = rate × C.'];
   const given = [`Unit cost C = ${fmtMoney0(C)}`, `Annual holding cost = ${Math.round(rate * 100)}% of unit cost`];
   if (opts.numeric) {
@@ -179,6 +183,7 @@ export function genHoldingCost(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
       mistake: 'rate-not-h',
     });
   }
@@ -198,6 +203,7 @@ export function genHoldingCost(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'rate-not-h',
     rnd,
   });
@@ -217,6 +223,7 @@ export function genOrdersPerYear(opts: GenOpts = {}): Question {
     steps: [`Orders per year = D / Q`, `= ${fmtInt(D)} / ${Q} = ${fmt2(answer)}`],
     fastRule: 'D/Q = orders per YEAR. (Q/D)×52 = WEEKS between orders.',
   };
+  const visual: Question['visual'] = { kind: 'sawtooth', D, Q, emphasize: 'orders' };
   const hints: [string, string] = ['How many lots of Q fit inside D?', 'Orders per year = D / Q.'];
   const given = [`Annual demand D = ${fmtInt(D)}`, `Order quantity Q = ${Q}`];
   if (opts.numeric) {
@@ -232,6 +239,7 @@ export function genOrdersPerYear(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
       mistake: 'dq-vs-qd',
     });
   }
@@ -251,6 +259,7 @@ export function genOrdersPerYear(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'dq-vs-qd',
     rnd,
   });
@@ -265,6 +274,7 @@ export function genWeeklyDemand(opts: GenOpts = {}): Question {
     steps: [`Weekly demand = D / 52`, `= ${fmtInt(D)} / 52 = ${weekly}`],
     fastRule: 'Weekly demand = D / 52.',
   };
+  const visual: Question['visual'] = { kind: 'weeks', D };
   const hints: [string, string] = ['How many weeks are in a year?', 'Weekly demand = D / 52.'];
   const given = [`Annual demand D = ${fmtInt(D)} units`];
   if (opts.numeric) {
@@ -280,6 +290,7 @@ export function genWeeklyDemand(opts: GenOpts = {}): Question {
       format: fmtInt,
       hints,
       explanation,
+      visual,
       mistake: 'formula-choice',
     });
   }
@@ -299,6 +310,7 @@ export function genWeeklyDemand(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -314,6 +326,7 @@ export function genTimeBetweenOrders(opts: GenOpts = {}): Question {
     steps: [`Time between orders (weeks) = (Q / D) × 52`, `= (${Q} / ${fmtInt(D)}) × 52 = ${fmt2(answer)} weeks`],
     fastRule: '(Q/D) × 52 = WEEKS between orders. D/Q = orders per year.',
   };
+  const visual: Question['visual'] = { kind: 'sawtooth', D, Q, emphasize: 'gap' };
   const hints: [string, string] = ['Q/D is the fraction of a year one order lasts.', 'Weeks between orders = (Q/D) × 52.'];
   const given = [`Annual demand D = ${fmtInt(D)}`, `Order quantity Q = ${Q}`];
   if (opts.numeric) {
@@ -329,6 +342,7 @@ export function genTimeBetweenOrders(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
       mistake: 'dq-vs-qd',
     });
   }
@@ -348,6 +362,7 @@ export function genTimeBetweenOrders(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'dq-vs-qd',
     rnd,
   });
@@ -365,6 +380,7 @@ export function genPurchaseCost(opts: GenOpts = {}): Question {
     steps: ['Purchase cost = D × C', `= ${fmtInt(s.D)} × ${s.C} = ${fmtMoney0(answer)}`],
     fastRule: 'DC = annual demand × unit cost. Q does not appear.',
   };
+  const visual: Question['visual'] = { kind: 'cost-stack', DC: answer };
   const hints: [string, string] = ['How many units bought per year, and at what price each?', 'Purchase cost = D × C.'];
   return mcCalc({
     skill: 'purchase-cost',
@@ -382,6 +398,7 @@ export function genPurchaseCost(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -400,6 +417,7 @@ export function genAOC(opts: GenOpts = {}): Question {
     ],
     fastRule: 'AOC = orders per year × cost per order.',
   };
+  const visual: Question['visual'] = { kind: 'sawtooth', D: s.D, Q: s.Q, S: s.S, emphasize: 'orders' };
   const hints: [string, string] = ['How many orders per year, and what does each cost?', 'AOC = (D/Q) × S.'];
   const given = givenLines(s, ['D', 'S', 'Q']);
   if (opts.numeric) {
@@ -415,6 +433,7 @@ export function genAOC(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
     });
   }
   return mcCalc({
@@ -433,6 +452,7 @@ export function genAOC(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -447,6 +467,7 @@ export function genAHC(opts: GenOpts = {}): Question {
     steps: [...hSteps(s).filter((l) => l.startsWith('H')), 'AHC = (Q / 2) × H', `= (${s.Q} / 2) × ${fmt2(s.H)} = ${fmtMoney2(answer)}`],
     fastRule: 'AHC = average inventory (Q/2) × H.',
   };
+  const visual: Question['visual'] = { kind: 'sawtooth', D: s.D, Q: s.Q, H: s.H, emphasize: 'average' };
   const hints: [string, string] = ['Average inventory is half the order size.', 'AHC = (Q/2) × H' + (s.rate !== undefined ? ', with H = rate × C.' : '.')];
   const given = givenLines(s, difficulty === 'easy' ? ['Q', 'H'] : ['C', 'Q', 'H']);
   if (opts.numeric) {
@@ -462,6 +483,7 @@ export function genAHC(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
       mistake: s.rate !== undefined ? 'rate-not-h' : 'arithmetic',
     });
   }
@@ -481,6 +503,7 @@ export function genAHC(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -504,6 +527,7 @@ export function genTotalCost(opts: GenOpts = {}): Question {
     ],
     fastRule: 'TC = DC + AOC + AHC. Three pieces, do not drop DC.',
   };
+  const visual: Question['visual'] = { kind: 'cost-stack', DC: dc, AOC: aoc, AHC: ahc, Q: s.Q };
   const hints: [string, string] = ['Total cost has THREE pieces.', 'TC = DC + (D/Q)S + (Q/2)H.'];
   const given = givenLines(s, ['D', 'C', 'S', 'H', 'Q']);
   if (opts.numeric) {
@@ -519,6 +543,7 @@ export function genTotalCost(opts: GenOpts = {}): Question {
       format: fmt2,
       hints,
       explanation,
+      visual,
     });
   }
   return mcCalc({
@@ -537,6 +562,7 @@ export function genTotalCost(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -555,6 +581,7 @@ export function genPipeline(opts: GenOpts = {}): Question {
     steps: ['Pipeline = d × L', `= ${d} × ${L} = ${answer} units`],
     fastRule: 'Pipeline = demand rate × lead time (same time units).',
   };
+  const visual: Question['visual'] = { kind: 'pipeline', d, L };
   const hints: [string, string] = ['How much is ordered during the time an order is traveling?', 'Pipeline = d × L.'];
   const given = [`Demand rate d = ${d} units per week`, `Lead time L = ${L} weeks`];
   if (opts.numeric) {
@@ -570,6 +597,7 @@ export function genPipeline(opts: GenOpts = {}): Question {
       format: fmtInt,
       hints,
       explanation,
+      visual,
       mistake: 'formula-choice',
     });
   }
@@ -589,6 +617,7 @@ export function genPipeline(opts: GenOpts = {}): Question {
     ],
     hints,
     explanation,
+    visual,
     defaultMistake: 'formula-choice',
     rnd,
   });
@@ -631,6 +660,7 @@ export function genEoqIntuition(opts: GenOpts = {}): Question {
       { label: statements[dir === 'equal' ? 'greater' : 'equal'], mistake: 'eoq-direction' },
       { label: 'Not enough information to compare EOQ with the current Q', mistake: 'eoq-direction' },
     ],
+    visual: { kind: 'balance', AHC, AOC, Q },
     hints: ['At EOQ the two costs are equal. Which one is heavier right now?', 'AHC > AOC → Q too big → EOQ smaller. AOC > AHC → Q too small → EOQ larger.'],
     explanation: { steps: why, fastRule: 'Heavy holding → shrink Q. Heavy ordering → grow Q.', memoryTrick: 'Big pile costs more to hold.' },
     defaultMistake: 'eoq-direction',
@@ -683,6 +713,7 @@ export function genOrderingRestrictions(opts: GenOpts = {}): Question {
       { value: best + increment * 2, mistake: 'arithmetic' },
       { value: Math.max(increment, best - increment * 2), mistake: 'arithmetic' },
     ],
+    visual: { kind: 'eoq-curve', D: s.D, S: s.S, H: s.H, Q: best, marks: [below, above] },
     hints: ['First find EOQ, then look at the permitted quantities on each side.', 'Compare AOC + AHC at the two nearest permitted quantities.'],
     explanation,
     defaultMistake: 'formula-choice',

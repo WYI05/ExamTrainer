@@ -120,7 +120,8 @@ export function genNextStation(opts: GenOpts & { graph?: Graph; cycleTime?: numb
       diagram: { graphId: graph.id, completed: [...completed] },
       correct: label(correct),
       wrong: invalid.slice(0, 3).map((i) => ({ label: label(i.station), mistake: i.mistake })),
-      hints: ['Check two things: is every arrow into each task already finished, and is the total ≤ CT?', 'Eliminate any option containing a task whose predecessor is not done yet, then check the time.'],
+      visual: { kind: 'layout-check', graphId: graph.id, layout: [...prior, correct], ct },
+    hints: ['Check two things: is every arrow into each task already finished, and is the total ≤ CT?', 'Eliminate any option containing a task whose predecessor is not done yet, then check the time.'],
       explanation: { steps, fastRule: 'Valid station = all predecessors done + total ≤ CT.' },
       defaultMistake: 'predecessor',
       isCalc: true,
@@ -145,6 +146,7 @@ export function fixedNextStationG1(rnd: Rng = defaultRng, difficulty: Difficulty
       { label: 'BCD', mistake: 'exceeded-ct' },
       { label: 'CF', mistake: 'predecessor' },
     ],
+    visual: { kind: 'layout-check', graphId: 'g1', layout: [['A', 'E'], ['B', 'C']], ct: 85 },
     hints: ['Which tasks have every arrow into them finished after A and E?', 'B and C have no predecessors. D needs B. F needs E, C and D.'],
     explanation: {
       steps: [
@@ -176,6 +178,7 @@ export function fixedNextStationG2(rnd: Rng = defaultRng, difficulty: Difficulty
       { label: 'EF', mistake: 'predecessor' },
       { label: 'DE', mistake: 'predecessor' },
     ],
+    visual: { kind: 'layout-check', graphId: 'g2', layout: [['B', 'C'], ['A', 'D']], ct: 80 },
     hints: ['A has no predecessor. D requires B. E requires A. F requires C, D and E.', 'Only tasks whose predecessors are complete may be placed.'],
     explanation: {
       steps: [
@@ -207,6 +210,7 @@ export function fixedLab2NotAcceptableBF(rnd: Rng = defaultRng, difficulty: Diff
       { label: 'G', mistake: 'predecessor' },
       { label: 'BG', mistake: 'predecessor' },
     ],
+    visual: { kind: 'layout-check', graphId: 'lab2', layout: [['I', 'D'], ['A', 'C'], ['B', 'F']], ct: 77 },
     hints: ['F has a predecessor chain: B → E → F.', 'Is E complete? If not, F cannot be placed.'],
     explanation: {
       steps: [
@@ -238,6 +242,7 @@ export function fixedLab2NotAcceptableADJ(rnd: Rng = defaultRng, difficulty: Dif
       { label: 'CD', mistake: 'predecessor' },
       { label: 'AE', mistake: 'predecessor' },
     ],
+    visual: { kind: 'layout-check', graphId: 'lab2', layout: [['I', 'B'], ['A', 'D', 'J']], ct: 77 },
     hints: ['J has a predecessor. Has it been completed?', 'J requires C. C is not in WS1.'],
     explanation: {
       steps: [
@@ -326,6 +331,7 @@ export function verdictQuestion(graph: Graph, layout: string[][], ct: number, di
       label: VERDICT_LABEL[v],
       mistake: check.verdict === 'cycle-time' || (check.verdict === 'both' && v === 'precedence') ? 'exceeded-ct' : 'predecessor',
     })),
+    visual: { kind: 'layout-check', graphId: graph.id, layout, ct },
     hints: ['Check each station total against CT, then trace each arrow.', 'Two separate checks: time ≤ CT, and every predecessor finished in an earlier (or the same) station.'],
     explanation: { steps: explainLayout(graph, layout, ct), fastRule: 'Valid = under CT AND arrows respected.' },
     defaultMistake: 'predecessor',
@@ -368,7 +374,8 @@ export function genDiagramCalc(opts: GenOpts & { graph?: Graph } = {}): Question
         { value: tm + 2, mistake: 'arithmetic' },
         { value: Math.max(1, tm - 2), mistake: 'ws-round-down' },
       ],
-      hints: ['Add up every task time first.', `t = ${t}. TM = t / c, round UP.`],
+      visual: { kind: 'rounding', value: t / ct, mode: 'up' },
+    hints: ['Add up every task time first.', `t = ${t}. TM = t / c, round UP.`],
       explanation: {
         steps: [`t = ${graph.tasks.map((x) => x.time).join(' + ')} = ${t} sec`, `TM = ${t} / ${ct} = ${fmt2(t / ct)} → round up → ${tm}`],
         fastRule: 'Sum the diagram, divide by CT, round UP.',
@@ -394,7 +401,8 @@ export function genDiagramCalc(opts: GenOpts & { graph?: Graph } = {}): Question
         { value: 1 - answer, mistake: 'formula-choice' },
         { value: answer * 0.8, mistake: 'arithmetic' },
       ],
-      hints: ['Total task time comes from the diagram.', `Efficiency = t / (n × c) with t = ${t}.`],
+      visual: { kind: 'station-bars', t, n, c: ct },
+    hints: ['Total task time comes from the diagram.', `Efficiency = t / (n × c) with t = ${t}.`],
       explanation: {
         steps: [`t = ${t} sec (sum of the diagram)`, `Efficiency = ${t} / (${n} × ${ct}) = ${t} / ${n * ct} = ${answer.toFixed(3)} ≈ ${fmt2(answer)}`],
         fastRule: 'Efficiency = t / (nc).',
@@ -419,6 +427,7 @@ export function genDiagramCalc(opts: GenOpts & { graph?: Graph } = {}): Question
       { value: n * ct, mistake: 'formula-choice' },
       { value: answer + ct, mistake: 'arithmetic' },
     ],
+    visual: { kind: 'station-bars', t, n, c: ct },
     hints: ['Capacity = n × c. Work = sum of the diagram.', `Idle = ${n} × ${ct} − t, with t = ${t}.`],
     explanation: {
       steps: [`t = ${t} sec`, `Capacity = ${n} × ${ct} = ${n * ct} sec`, `Idle = ${n * ct} − ${t} = ${answer} sec`],
@@ -503,6 +512,7 @@ export function genStationCheck(opts: GenOpts & { graph?: Graph } = {}): Questio
     wrong: (Object.keys(VERDICT_LABEL) as LayoutVerdict[])
       .filter((v) => v !== verdict)
       .map((v) => ({ label: VERDICT_LABEL[v], mistake: v === 'valid' ? ('predecessor' as const) : ('exceeded-ct' as const) })),
+    visual: { kind: 'layout-check', graphId: graph.id, layout: [...prior, proposal], ct },
     hints: ['Two checks: total time, and incoming arrows.', 'Add the times, then trace each arrow into the proposed tasks.'],
     explanation: { steps, fastRule: 'Under CT AND predecessors done = acceptable.' },
     defaultMistake: 'predecessor',

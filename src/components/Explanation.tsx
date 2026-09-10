@@ -1,6 +1,7 @@
 import { Lightbulb, Sparkles } from 'lucide-react';
 import type { Question } from '@/types';
 import { givenText } from '@/generators/common';
+import { Visual } from './Visuals';
 import { cx } from './ui';
 
 interface Props {
@@ -35,6 +36,7 @@ export function Explanation({ question: q, given, correct, headline, compact }: 
             <div className="font-medium">{q.correctText}</div>
           </div>
         )}
+        {q.visual && <Visual spec={q.visual} />}
         <div>
           <div className="mb-1 text-[10px] font-bold uppercase tracking-wide text-muted">Why</div>
           <ol className="space-y-1">

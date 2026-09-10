@@ -19,6 +19,7 @@ import { EOQTrainerPage } from '@/pages/EOQTrainerPage';
 import { PrecedenceTrainerPage } from '@/pages/PrecedenceTrainerPage';
 import { SprintPage } from '@/pages/SprintPage';
 import { SettingsPage } from '@/pages/SettingsPage';
+import { PictureGuide } from '@/pages/PictureGuide';
 
 export default function App() {
   const { progress } = useProgress();
@@ -46,6 +47,7 @@ export default function App() {
       <Route path="/precedence-trainer" element={<PrecedenceTrainerPage />} />
       <Route path="/sprint/:kind" element={<SprintPage />} />
       <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/guide" element={<PictureGuide />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

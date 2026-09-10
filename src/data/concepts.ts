@@ -1,4 +1,4 @@
-import type { Difficulty, MistakeCategoryId, SkillId, WorldId } from '@/types';
+import type { Difficulty, MistakeCategoryId, SkillId, VisualSpec, WorldId } from '@/types';
 
 // ---------------------------------------------------------------------------
 // CONCEPT QUESTION BANK
@@ -20,6 +20,8 @@ export interface ConceptTemplate {
   memoryTrick?: string;
   hints: [string, string];
   mistake?: MistakeCategoryId;
+  /** Optional figure shown with the explanation. */
+  visual?: VisualSpec;
 }
 
 const SC_TERMS = ['Procurement', 'Logistics', 'Manufacturing', 'Marketing', 'Sales', 'Finance', 'Operations', 'Customer Service'];
@@ -135,6 +137,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-tco-1',
+    visual: { kind: 'tco' },
     skill: 'tco',
     world: 'w1',
     difficulty: 'easy',
@@ -217,6 +220,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-pipeline-concept',
+    visual: { kind: 'pipeline', d: 150, L: 2 },
     skill: 'pipeline',
     world: 'w2',
     difficulty: 'easy',
@@ -232,6 +236,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-eoq-def',
+    visual: { kind: 'eoq-curve', D: 3000, S: 400, H: 38, Q: 251 },
     skill: 'eoq-intuition',
     world: 'w2',
     difficulty: 'easy',
@@ -250,6 +255,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-eoq-bigger-q',
+    visual: { kind: 'sawtooth', D: 3000, Q: 600, S: 400, H: 38, emphasize: 'average' },
     skill: 'eoq-intuition',
     world: 'w2',
     difficulty: 'medium',
@@ -268,6 +274,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-eoq-smaller-q',
+    visual: { kind: 'sawtooth', D: 3000, Q: 100, S: 400, H: 38, emphasize: 'orders' },
     skill: 'eoq-intuition',
     world: 'w2',
     difficulty: 'medium',
@@ -285,6 +292,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-eoq-trap-q',
+    visual: { kind: 'eoq-curve', D: 3000, S: 400, H: 38 },
     skill: 'eoq',
     world: 'w2',
     difficulty: 'medium',
@@ -298,6 +306,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-h-trap',
+    visual: { kind: 'holding', C: 80, rate: 0.25 },
     skill: 'holding-cost',
     world: 'w2',
     difficulty: 'medium',
@@ -313,6 +322,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-dc-constant',
+    visual: { kind: 'cost-stack', DC: 1365000, AOC: 4116.67, AHC: 27562.5, Q: 900 },
     skill: 'purchase-cost',
     world: 'w2',
     difficulty: 'medium',
@@ -330,6 +340,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   // ---------------- World 3 (concepts) ----------------
   {
     id: 'c-ct-round',
+    visual: { kind: 'rounding', value: 77.84, mode: 'down' },
     skill: 'rounding-rules',
     world: 'w3',
     difficulty: 'easy',
@@ -347,6 +358,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-ws-round',
+    visual: { kind: 'rounding', value: 4.07, mode: 'up' },
     skill: 'rounding-rules',
     world: 'w3',
     difficulty: 'easy',
@@ -363,6 +375,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-ect-def',
+    visual: { kind: 'station-bars', stationTimes: [45, 75, 45, 70, 55], highlightMax: true },
     skill: 'effective-ct',
     world: 'w3',
     difficulty: 'easy',
@@ -411,6 +424,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-tm-attainable',
+    visual: { kind: 'rounding', value: 2.8, mode: 'up', label: 'TM = 2.8 → 3 is the floor; arrows may force a 4th station.' },
     skill: 'theoretical-min',
     world: 'w3',
     difficulty: 'medium',
@@ -471,6 +485,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-teu-1',
+    visual: { kind: 'teu', twenty: 2, forty: 1 },
     skill: 'teu',
     world: 'w4',
     difficulty: 'easy',
@@ -484,6 +499,7 @@ export const CONCEPTS: ConceptTemplate[] = [
   },
   {
     id: 'c-teu-40',
+    visual: { kind: 'teu', twenty: 1, forty: 1 },
     skill: 'teu',
     world: 'w4',
     difficulty: 'easy',

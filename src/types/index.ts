@@ -87,6 +87,22 @@ export interface DiagramRef {
   completed?: string[];
 }
 
+/** A learning figure attached to a question (shown in the explanation) or a lesson step. */
+export type VisualSpec =
+  | { kind: 'sawtooth'; D: number; Q: number; S?: number; H?: number; emphasize?: 'orders' | 'gap' | 'average' }
+  | { kind: 'station-bars'; t?: number; n?: number; c?: number; stationTimes?: number[]; highlightMax?: boolean }
+  | { kind: 'cost-stack'; DC?: number; AOC?: number; AHC?: number; Q?: number }
+  | { kind: 'teu'; twenty: number; forty: number }
+  | { kind: 'rounding'; value: number; mode: 'down' | 'up'; label?: string }
+  | { kind: 'holding'; C: number; rate: number }
+  | { kind: 'pipeline'; d: number; L: number }
+  | { kind: 'weeks'; D: number }
+  | { kind: 'balance'; AHC: number; AOC: number; Q: number }
+  | { kind: 'eoq-curve'; D: number; S: number; H: number; Q?: number; marks?: number[] }
+  | { kind: 'layout-check'; graphId: string; layout: string[][]; ct: number }
+  | { kind: 'tco' }
+  | { kind: 'day-split'; OT: number; D: number };
+
 export interface Question {
   id: string;
   /** Concept template id (for re-asking the same concept) or generator key. */
@@ -99,6 +115,8 @@ export interface Question {
   /** Short "given" lines shown above the prompt. */
   given?: string[];
   diagram?: DiagramRef;
+  /** Figure rendered with the explanation. */
+  visual?: VisualSpec;
   choices?: Choice[];
   /** Choice id for MC; numeric value for numeric. */
   answer: string | number;

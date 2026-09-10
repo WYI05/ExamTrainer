@@ -20,6 +20,7 @@ export interface McCalcOptions {
   explanation: Explanation;
   templateId?: string;
   diagram?: Question['diagram'];
+  visual?: Question['visual'];
   rnd?: Rng;
   /** Fallback wrong-answer category (used when a distractor has none). */
   defaultMistake?: MistakeCategoryId;
@@ -74,6 +75,7 @@ export function mcCalc(o: McCalcOptions): Question {
     prompt: o.prompt,
     given: o.given,
     diagram: o.diagram,
+    visual: o.visual,
     choices,
     answer: correctChoice.id,
     correctText: correctLabel,
@@ -96,6 +98,7 @@ export interface McTextOptions {
   explanation: Explanation;
   templateId?: string;
   diagram?: Question['diagram'];
+  visual?: Question['visual'];
   isCalc?: boolean;
   defaultMistake?: MistakeCategoryId;
   rnd?: Rng;
@@ -125,6 +128,7 @@ export function mcText(o: McTextOptions): Question {
     prompt: o.prompt,
     given: o.given,
     diagram: o.diagram,
+    visual: o.visual,
     choices,
     answer: correctChoice.id,
     correctText: o.correct,
@@ -150,6 +154,7 @@ export interface NumericOptions {
   mistake?: MistakeCategoryId;
   templateId?: string;
   diagram?: Question['diagram'];
+  visual?: Question['visual'];
 }
 
 /** Builds a free-entry numeric question. */
@@ -164,6 +169,7 @@ export function numeric(o: NumericOptions): Question {
     prompt: o.prompt,
     given: o.given,
     diagram: o.diagram,
+    visual: o.visual,
     answer: o.answer,
     tolerance: o.tolerance,
     unit: o.unit,

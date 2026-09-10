@@ -17,6 +17,7 @@ export function conceptFromTemplate(t: ConceptTemplate, rnd: Rng = defaultRng, d
     hints: t.hints,
     explanation: { steps: t.why, fastRule: t.fastRule, memoryTrick: t.memoryTrick },
     defaultMistake: t.mistake ?? 'vocab',
+    visual: t.visual,
     rnd,
   });
 }

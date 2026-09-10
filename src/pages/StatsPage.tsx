@@ -6,6 +6,7 @@ import { readiness, skillAccuracy, skillMastery, skillSpeed, worldStats } from '
 import { Shell } from '@/components/Layout';
 import { MasteryBadge } from '@/components/Badges';
 import { PageTitle, Ring, Stat, cx } from '@/components/ui';
+import { RadarChart } from '@/components/Visuals';
 import { secondsToClock } from '@/utils/format';
 
 export function StatsPage() {
@@ -21,6 +22,7 @@ export function StatsPage() {
       <PageTitle title="Stats" sub="Everything is stored in this browser’s localStorage." />
       <div className="card flex flex-wrap items-center gap-6 p-5">
         <Ring value={r.overall} size={120} stroke={10} sub="overall" />
+        <RadarChart size={190} axes={WORLDS.map((w) => ({ label: w.title.split(' ')[0], value: worldStats(progress, w.id).mastery }))} />
         <div className="grid flex-1 grid-cols-2 gap-2 sm:grid-cols-3">
           <Stat label="Knowledge" value={`${r.knowledge}%`} />
           <Stat label="Speed" value={`${r.speed}%`} />

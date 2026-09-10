@@ -16,6 +16,7 @@ import { FormulaCard } from '@/components/FormulaCard';
 import { EOQVisual } from '@/components/EOQVisual';
 import { BalanceScale } from '@/components/BalanceScale';
 import { PrecedenceDiagram, DiagramLegend } from '@/components/PrecedenceDiagram';
+import { Visual } from '@/components/Visuals';
 import { GRAPHS } from '@/data/diagrams';
 import { ProgressBar, cx } from '@/components/ui';
 import { useSound } from '@/hooks/useSound';
@@ -121,6 +122,16 @@ function LessonRunner({ world }: { world: WorldId }) {
       {step.kind === 'flash' && <FlashCardView front={step.front} back={step.back} />}
       {step.kind === 'formula' && <FormulaCard f={FORMULA_MAP[step.formulaId]} full />}
       {step.kind === 'visual' && <VisualStep visual={step.visual} />}
+      {step.kind === 'figure' && (
+        <div className="card animate-pop p-5">
+          <div className="text-[11px] font-bold uppercase tracking-wide text-muted">See it</div>
+          <h2 className="mt-1 text-xl font-extrabold">{step.title}</h2>
+          <div className="mt-3">
+            <Visual spec={step.spec} />
+          </div>
+          <p className="mt-3 text-sm text-muted">{step.caption}</p>
+        </div>
+      )}
       {step.kind === 'question' && questionSource && (
         <LessonQuestion
           key={step.question.id}

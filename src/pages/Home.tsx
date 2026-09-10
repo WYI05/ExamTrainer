@@ -1,10 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertCircle, BarChart3, BookOpen, Crown, Flame, Gauge, GitBranch, Layers, Lock, Play, Sigma, Sparkles, Target, Timer, Trophy, Zap } from 'lucide-react';
+import { AlertCircle, BarChart3, BookOpen, Crown, Eye, Flame, Gauge, GitBranch, Layers, Lock, Play, Sigma, Sparkles, Target, Timer, Trophy, Zap } from 'lucide-react';
 import { useProgress } from '@/hooks/useProgress';
 import { WORLDS, levelKey } from '@/data/worlds';
 import { readiness, worldStats } from '@/utils/mastery';
 import { Shell } from '@/components/Layout';
 import { ProgressBar, Ring, Stars, cx } from '@/components/ui';
+import { RadarChart } from '@/components/Visuals';
 import type { Progress, WorldId } from '@/types';
 
 const WORLD_TEXT: Record<WorldId, string> = { w1: 'text-info', w2: 'text-good', w3: 'text-violet', w4: 'text-warn' };
@@ -44,6 +45,7 @@ export function Home() {
   ];
 
   const tools = [
+    { label: 'Picture Guide', icon: Eye, to: '/guide' },
     { label: 'Formula Sheet', icon: Sigma, to: '/formulas' },
     { label: 'Formula Game', icon: Gauge, to: '/formula-game' },
     { label: 'Mistake Notebook', icon: BookOpen, to: '/notebook', badge: progress.mistakes.filter((m) => !m.resolvedAt).length || undefined },
@@ -60,19 +62,20 @@ export function Home() {
 
   return (
     <Shell>
-      <div className="grid gap-5 md:grid-cols-[1fr_260px]">
+      <div className="grid gap-5 md:grid-cols-[1fr_auto]">
         <div>
           <div className="text-[11px] font-bold uppercase tracking-widest text-muted">SCM 300</div>
           <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">Exam 1 Training</h1>
           <p className="mt-1 text-sm text-muted">Modules 1–4 · short lessons · instant feedback · real exam pacing.</p>
         </div>
-        <div className="card flex items-center gap-4 p-4">
+        <div className="card flex flex-wrap items-center gap-4 p-4">
           <Ring value={r.overall} size={84} stroke={8} sub="ready" />
-          <div className="flex-1 space-y-2 text-xs">
+          <div className="w-40 space-y-2 text-xs">
             <div className="text-[11px] font-bold uppercase tracking-wide text-muted">Exam readiness</div>
             <Row label="Knowledge" value={r.knowledge} />
             <Row label="Speed" value={r.speed} />
           </div>
+          <RadarChart size={150} axes={WORLDS.map((w) => ({ label: ['Foundations', 'EOQ', 'Lines', 'Logistics'][w.num - 1], value: worldStats(progress, w.id).mastery }))} />
         </div>
       </div>
 
