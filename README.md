@@ -1,5 +1,7 @@
 # SCM 300 · Exam 1 Training
 
+**Live site:** https://wyi05.github.io/ExamTrainer/
+
 A game-like **pre-exam** study app for Arizona State University SCM 300 (Modules 1–4).
 Short lessons, one question at a time, instant feedback, streaks, XP, boss battles,
 and a realistic 40-question / 60-minute exam simulator. Everything runs locally in the
